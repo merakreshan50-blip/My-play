@@ -1,0 +1,210 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>درس أنواع القروض</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;font-family:Tahoma,Arial,sans-serif;
+ background:linear-gradient(135deg,#fff0f5,#effcf8);
+ color:#51434b;min-height:100vh;
+ display:grid;place-items:center;padding:18px
+}
+.app{
+ width:min(760px,100%);background:#ffffffed;
+ border:2px solid #f5d7e4;border-radius:28px;
+ padding:clamp(20px,5vw,38px);
+ box-shadow:0 14px 40px #b77d9720;text-align:center
+}
+h1{color:#bd7293;margin:0 0 12px;font-size:clamp(28px,5vw,42px)}
+h2{color:#bd7293;font-size:clamp(22px,4vw,30px)}
+.credits{line-height:2.1;font-size:17px;margin:22px 0;color:#6b5963}
+.small{color:#9a8790;font-size:14px}
+button{
+ border:0;border-radius:15px;padding:13px 22px;
+ font-size:17px;font-weight:bold;cursor:pointer;margin:7px
+}
+button:hover{transform:translateY(-2px)}
+.primary{background:#d98eae;color:white}
+.secondary{background:#e5f5ef;color:#4d8070}
+.random{background:#f9e5ef;color:#a45178}
+.hidden{display:none!important}
+.topline{
+ display:flex;justify-content:space-between;align-items:center;
+ gap:10px;color:#987d8b;font-size:14px;margin-bottom:22px
+}
+.tag{background:#fce8f0;padding:8px 13px;border-radius:30px}
+.question{
+ font-size:clamp(22px,4vw,30px);line-height:1.8;
+ margin:28px 0;min-height:110px;display:grid;place-items:center
+}
+.answer{
+ background:#eff9f5;border:2px dashed #a8d6c5;
+ border-radius:18px;padding:18px;font-size:20px;
+ line-height:1.8;margin:18px 0
+}
+.controls{display:flex;justify-content:center;flex-wrap:wrap;margin-top:22px}
+.progress{height:8px;background:#f5e8ee;border-radius:10px;overflow:hidden;margin:15px 0 24px}
+.progress span{display:block;height:100%;background:#d98eae;width:0;transition:.25s}
+@media(max-width:480px){
+ .topline{flex-direction:column}
+ .question{min-height:135px}
+}
+</style>
+</head>
+<body>
+<main class="app">
+
+<section id="intro">
+ <h1>درس أنواع القروض</h1>
+ <div class="credits">
+  <strong>عمل الطالبات</strong><br>
+  ميرا كريشان و ليان كريشان<br>
+  سيلين الفناطسة و خزامى أبو هلالة<br><br>
+  <strong>إشراف المعلمة سهى أحمد</strong>
+ </div>
+ <button class="primary" onclick="startGame()">ابدئي اللعبة</button>
+</section>
+
+<section id="game" class="hidden">
+ <div class="topline">
+  <span class="tag" id="counter">السؤال 1 من 15</span>
+  <span class="tag">مراجعة أنواع القروض</span>
+ </div>
+ <div class="progress"><span id="bar"></span></div>
+ <div class="small" id="kind">صح أم خطأ</div>
+ <div class="question" id="question"></div>
+ <div id="answer" class="answer hidden"></div>
+ <div class="controls">
+  <button class="secondary" id="showBtn" onclick="showAnswer()">إظهار الإجابة</button>
+  <button class="random" onclick="randomQuestion()">سؤال عشوائي</button>
+  <button class="primary" id="nextBtn" onclick="nextQuestion()">السؤال التالي</button>
+ </div>
+</section>
+
+<section id="finish" class="hidden">
+ <h1>أحسنتم!</h1>
+ <h2>انتهت مراجعة درس أنواع القروض</h2>
+ <p class="credits">شكرًا لمشاركتكنّ وتفاعلكنّ</p>
+ <button class="primary" onclick="restart()">إعادة اللعبة</button>
+</section>
+
+</main>
+
+<script>
+const questions = [
+ {kind:"صح أم خطأ",q:"يصنّف الدرس القروض بحسب الضمان إلى نوعين.",a:"صح. هما القروض بضمان والقروض دون ضمان."},
+ {kind:"صح أم خطأ",q:"القروض قصيرة الأجل ومتوسطة الأجل وطويلة الأجل هي أنواع القروض بحسب الضمان.",a:"خطأ. هذه أنواع القروض بحسب المدة."},
+ {kind:"من أنا؟",q:"أنا شخص يضمن سداد القرض إذا تعثّر المقترض، فمن أكون؟",a:"الكفيل أو الضامن."},
+ {kind:"صحّحي المعلومة",q:"الكفيل هو الشخص الذي يحصل على القرض بدلًا من المقترض.",a:"التصحيح: الكفيل هو الشخص الذي يضمن سداد القرض إذا تعثّر المقترض."},
+ {kind:"أكملي العبارة",q:"القروض قصيرة الأجل هي القروض التي تكون مدتها سنة واحدة أو ____.",a:"أقل."},
+ {kind:"موقف وقرار",q:"شخص حصل على قرض مدته 8 أشهر. كيف يُصنّف القرض بحسب المدة؟",a:"قرض قصير الأجل؛ لأن مدته سنة واحدة أو أقل."},
+ {kind:"صح أم خطأ",q:"القروض متوسطة الأجل تتراوح مدتها من سنة إلى خمس سنوات.",a:"صح."},
+ {kind:"موقف وقرار",q:"قرض مدته 4 سنوات؛ هل هو قصير أم متوسط أم طويل الأجل؟",a:"متوسط الأجل؛ لأن مدته من سنة إلى خمس سنوات."},
+ {kind:"صحّحي المعلومة",q:"القروض طويلة الأجل مدتها خمس سنوات أو أقل.",a:"التصحيح: القروض طويلة الأجل تزيد مدتها على خمس سنوات."},
+ {kind:"موقف وقرار",q:"قرض مدته 7 سنوات. ما تصنيفه بحسب المدة؟",a:"قرض طويل الأجل."},
+ {kind:"أكملي العبارة",q:"بحسب سعر الفائدة، تنقسم القروض إلى ثابتة ومتغيرة و____.",a:"مختلطة."},
+ {kind:"من أنا؟",q:"سعر فائدتي لا يتغير طوال مدة القرض. من أكون؟",a:"قرض ذو سعر فائدة ثابت."},
+ {kind:"صح أم خطأ",q:"يرتبط سعر الفائدة المتغير بسعر الفائدة السائد في السوق.",a:"صح."},
+ {kind:"من أنا؟",q:"أجمع بين سعر الفائدة الثابت وسعر الفائدة المتغير. من أكون؟",a:"قرض ذو سعر فائدة مختلط."},
+ {kind:"تحدّي سريع",q:"اذكري أنواع القروض الثلاثة بحسب سعر الفائدة.",a:"قروض ذات سعر فائدة ثابت، ومتغير، ومختلط."}
+];
+
+let order=[], index=0, shown=false;
+
+const $=id=>document.getElementById(id);
+
+function shuffle(){
+ order=[...questions.keys()];
+ for(let i=order.length-1;i>0;i--){
+  let j=Math.floor(Math.random()*(i+1));
+  [order[i],order[j]]=[order[j],order[i]];
+ }
+}
+
+function startGame(){
+ shuffle();
+ index=0;
+ $("intro").classList.add("hidden");
+ $("finish").classList.add("hidden");
+ $("game").classList.remove("hidden");
+ render();
+}
+
+function render(){
+ const item=questions[order[index]];
+ $("counter").textContent=`السؤال ${index+1} من ${questions.length}`;
+ $("bar").style.width=((index+1)/questions.length*100)+"%";
+ $("kind").textContent=item.kind;
+ $("question").textContent=item.q;
+ $("answer").textContent=item.a;
+ $("answer").classList.add("hidden");
+ $("showBtn").classList.remove("hidden");
+ $("nextBtn").textContent=index===questions.length-1?"إنهاء المراجعة":"السؤال التالي";
+ shown=false;
+}
+
+function showAnswer(){
+ if(shown)return;
+ $("answer").classList.remove("hidden");
+ $("showBtn").classList.add("hidden");
+ shown=true;
+ beep(660,.12);
+}
+
+function nextQuestion(){
+ if(index<questions.length-1){
+  index++;
+  render();
+  beep(520,.08);
+ }else{
+  $("game").classList.add("hidden");
+  $("finish").classList.remove("hidden");
+  beep(780,.18);
+ }
+}
+
+function randomQuestion(){
+ if(order.length<2)return;
+ let current=order[index];
+ let choices=order.filter(x=>x!==current);
+ let next=choices[Math.floor(Math.random()*choices.length)];
+ order.splice(order.indexOf(next),1);
+ order.splice(index+1,0,next);
+ index++;
+ if(index>=order.length)index=0;
+ render();
+ beep(590,.1);
+}
+
+function restart(){
+ shuffle();
+ index=0;
+ $("finish").classList.add("hidden");
+ $("game").classList.remove("hidden");
+ render();
+}
+
+function beep(freq,duration){
+ try{
+  const C=window.AudioContext||window.webkitAudioContext;
+  const ctx=new C();
+  const osc=ctx.createOscillator();
+  const gain=ctx.createGain();
+  osc.frequency.value=freq;
+  osc.type="sine";
+  gain.gain.value=.06;
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start();
+  gain.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+duration);
+  osc.stop(ctx.currentTime+duration);
+  osc.onended=()=>ctx.close();
+ }catch(e){}
+}
+</script>
+</body>
+</html>
